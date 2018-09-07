@@ -17,6 +17,7 @@ psql_cur = psql_db.cursor()
 
 id = 0
 
+# Transfer Authors
 while True:
     data = sqlite_cur.execute("SELECT id,name FROM author WHERE id > ? LIMIT 10000",(id,)).fetchall()
     if not data: break
@@ -27,3 +28,17 @@ while True:
     sql = sql.format(args_str)
     psql_cur.execute(sql,data)
     psql_db.commit()
+
+# Transfer Subreddits
+id = 0
+while True:
+    data = sqlite_cur.execute("SELECT id,name FROM subreddit WHERE id > ? LIMIT 10000",(id,)).fetchall()
+    if not data: break
+    id = data[-1][0]
+    print(id)
+    sql = "INSERT INTO subreddit VALUES {} ON CONFLICT DO NOTHING"
+    args_str = ','.join(['%s'] * len(data))
+    sql = sql.format(args_str)
+    psql_cur.execute(sql,data)
+    psql_db.commit()
+
